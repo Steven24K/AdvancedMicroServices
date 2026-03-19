@@ -1,0 +1,7 @@
+services:
+  dotnet: 
+    build: .
+    container_name: advanced_microservices
+    restart: unless-stopped
+    ports:
+      - 3003:8080
