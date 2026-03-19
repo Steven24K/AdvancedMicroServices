@@ -1,0 +1,13 @@
+
+@Html.Raw(ViewData["html"]);
+
+<script>
+    document.querySelectorAll('#resagenda .agendarow').forEach(row => {
+    const prodLink = row.querySelector('.agendaproductie a');
+    const targetLink = row.querySelector('.agendakaarten a');
+
+    if (prodLink && targetLink) {
+        targetLink.href = prodLink.href;
+    }
+});
+</script>

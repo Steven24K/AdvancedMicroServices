@@ -4,7 +4,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
+builder.Services.AddControllersWithViews();
+
 builder.Services.AddSingleton<AuthorizationFilter>();
+builder.Services.AddScoped<IProxyService, ProxyService>();
 
 var app = builder.Build();
 
@@ -16,7 +19,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
 // Middleware
 app.Use(async (context, next) =>
 {
@@ -25,29 +27,11 @@ app.Use(async (context, next) =>
 
 app.MapGet("/", () => "It works, services up and running!").WithName("Home");
 
-app.MapGet("/proxy-html", async (HttpContext context, IHttpClientFactory httpClientFactory) =>
-{
-    var url = context.Request.Query["url"].FirstOrDefault();
-    if (string.IsNullOrEmpty(url)) return Results.BadRequest("Missing parameter 'url'");
+app.MapGet("/proxy-html", ApiActions.ProxyHtml)
+    .AddEndpointFilter<DomainFilter>()
+    .WithName("Proxy HTML");
 
-    var sanatized_url = new Uri(url);
-    var protocol = sanatized_url.OriginalString.Replace($"{sanatized_url.Host}{sanatized_url.AbsolutePath}", "");
-
-    var client = httpClientFactory.CreateClient();
-
-    var response = await client.GetAsync(url);
-    var html = await response.Content.ReadAsStringAsync();
-
-    // Inject a <base> tag so images/css don't break
-    var baseTag = $"<base href='{sanatized_url.GetLeftPart(UriPartial.Authority)}/'>";
-    var modifiedHtml = html.Replace("<head>", $"<head>{baseTag}");
-
-
-    return Results.Content(modifiedHtml, "text/html");
-
-})
-.AddEndpointFilter<DomainFilter>()
-.WithName("Proxy HTML");
+app.MapControllers();
 
 app.Run();
 
