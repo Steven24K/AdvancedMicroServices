@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
 
 
 builder.Services.AddSingleton<AuthorizationFilter>();
@@ -26,7 +26,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.MapGet("/", () => "It works, services up and running!").WithName("Home");
+app.MapGet("/", () => "It works, services are up and running!").WithName("Home");
 
 app.MapGet("/proxy-html", ApiActions.ProxyHtml)
     .AddEndpointFilter<DomainFilter>()
