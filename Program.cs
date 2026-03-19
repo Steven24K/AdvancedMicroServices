@@ -6,14 +6,6 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "GenericCorsPolicy",
-                      policy =>
-                      {
-                          policy.WithOrigins("https://bettyasfalt.nl/").WithMethods("GET");
-                      });
-});
 
 builder.Services.AddSingleton<AuthorizationFilter>();
 builder.Services.AddScoped<IProxyService, ProxyService>();
@@ -25,8 +17,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-app.UseCors();
 
 app.UseHttpsRedirection();
 
